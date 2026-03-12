@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>moyses.helpdesk-es | Construindo em Público</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050508;
+    --bg2: #0a0a12;
+    --purple-deep: #12082a;
+    --purple-accent: #6b21a8;
+    --neon: #39ff14;
+    --neon-dim: #1aff0080;
+    --neon-faint: #39ff1415;
+    --neon-border: #39ff1440;
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --text-faint: #444466;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-head: 'Rajdhani', sans-serif;
+    --font-body: 'Exo 2', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); overflow-x: hidden; cursor: none; }
+
+  .cursor { position: fixed; width: 12px; height: 12px; background: var(--neon); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); box-shadow: 0 0 10px var(--neon), 0 0 30px var(--neon-dim); mix-blend-mode: screen; }
+  .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid var(--neon-border); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); }
+
+  body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px); pointer-events: none; z-index: 9000; }
+
+  .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(var(--neon-faint) 1px, transparent 1px), linear-gradient(90deg, var(--neon-faint) 1px, transparent 1px); background-size: 60px 60px; z-index: 0; animation: gridShift 20s linear infinite; mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 80%); }
+  @keyframes gridShift { 0%{background-position:0 0} 100%{background-position:60px 60px} }
+
+  nav { position: fixed; top:0; left:0; right:0; z-index:1000; display:flex; align-items:center; justify-content:space-between; padding:1.2rem 3rem; background:rgba(5,5,8,0.88); backdrop-filter:blur(12px); border-bottom:1px solid var(--neon-border); }
+  .logo { font-family:var(--font-mono); font-size:1rem; color:var(--neon); text-decoration:none; }
+  .logo::after { content:'_'; animation:blink 1s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+  .nav-links { display:flex; gap:2.5rem; list-style:none; }
+  .nav-links a { font-family:var(--font-head); font-size:0.85rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-dim); text-decoration:none; transition:color 0.2s; position:relative; }
+  .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--neon); transform:scaleX(0); transition:transform 0.2s; transform-origin:left; }
+  .nav-links a:hover { color:var(--neon); }
+  .nav-links a:hover::after { transform:scaleX(1); }
+  .nav-toggle { display:none; flex-direction:column; gap:5px; cursor:none; background:none; border:none; padding:4px; }
+  .nav-toggle span { display:block; width:24px; height:2px; background:var(--neon); }
+
+  section { position:relative; z-index:1; }
+  .divider { width:100%; height:1px; background:linear-gradient(90deg, transparent, var(--neon-border), transparent); }
+  .section-wrap { max-width:1100px; margin:0 auto; padding:6rem 2rem; }
+  .section-label { font-family:var(--font-mono); font-size:0.7rem; color:var(--neon); letter-spacing:0.3em; text-transform:uppercase; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.75rem; }
+  .section-label::before { content:'//'; opacity:0.5; }
+  .section-title { font-family:var(--font-head); font-size:clamp(2rem,5vw,3.5rem); font-weight:700; line-height:1; letter-spacing:-0.02em; margin-bottom:3rem; }
+  .section-title em { font-style:normal; color:var(--neon); }
+
+  /* HERO */
+  #hero { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:6rem 2rem 4rem; text-align:center; overflow:hidden; }
+  .hero-glow { position:absolute; width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, #6b21a840 0%, transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); animation:pulsate 4s ease-in-out infinite; pointer-events:none; }
+  @keyframes pulsate { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.6} 50%{transform:translate(-50%,-50%) scale(1.15);opacity:1} }
+  .hero-content { position:relative; max-width:800px; }
+  .hero-tag { display:inline-block; font-family:var(--font-mono); font-size:0.75rem; color:var(--neon); border:1px solid var(--neon-border); padding:0.3rem 1rem; letter-spacing:0.2em; margin-bottom:2rem; animation:fadeUp 0.6s ease both; }
+  .hero-name { font-family:var(--font-head); font-size:clamp(3rem,8vw,6.5rem); font-weight:700; line-height:0.9; letter-spacing:-0.02em; animation:fadeUp 0.6s 0.15s ease both; margin-bottom:0.5rem; }
+  .hero-name span { color:var(--neon); }
+  .hero-alias { font-family:var(--font-mono); font-size:clamp(0.8rem,2vw,1rem); color:var(--text-dim); letter-spacing:0.1em; margin-bottom:1.5rem; animation:fadeUp 0.6s 0.25s ease both; }
+  .hero-titulo { font-family:var(--font-head); font-size:clamp(1rem,2.5vw,1.4rem); font-weight:300; color:var(--text-dim); margin-bottom:1.5rem; animation:fadeUp 0.6s 0.35s ease both; }
+  .hero-missao { font-family:var(--font-mono); font-size:0.85rem; color:var(--text-faint); line-height:1.8; margin-bottom:2.5rem; animation:fadeUp 0.6s 0.45s ease both; border-left:2px solid var(--neon-border); padding-left:1rem; text-align:left; max-width:500px; margin-left:auto; margin-right:auto; }
+  .hero-missao .prompt { color:var(--neon); }
+  .hero-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; animation:fadeUp 0.6s 0.55s ease both; }
+  .btn { font-family:var(--font-head); font-size:0.85rem; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; padding:0.8rem 2rem; text-decoration:none; transition:all 0.2s; }
+  .btn-primary { background:var(--neon); color:var(--bg); border:1px solid var(--neon); }
+  .btn-primary:hover { background:transparent; color:var(--neon); box-shadow:0 0 20px var(--neon-dim), inset 0 0 20px var(--neon-faint); }
+  .btn-outline { background:transparent; color:var(--neon); border:1px solid var(--neon-border); }
+  .btn-outline:hover { border-color:var(--neon); box-shadow:0 0 20px var(--neon-dim); background:var(--neon-faint); }
+  .hero-scroll { position:absolute; bottom:2rem; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:0.5rem; animation:fadeUp 0.6s 0.8s ease both; }
+  .hero-scroll span { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-faint); letter-spacing:0.2em; }
+  .scroll-line { width:1px; height:40px; background:linear-gradient(to bottom, var(--neon), transparent); animation:scrollDown 1.5s ease-in-out infinite; }
+  @keyframes scrollDown { 0%,100%{opacity:0;transform:scaleY(0);transform-origin:top} 50%{opacity:1;transform:scaleY(1)} }
+  .glitch { position:relative; display:inline-block; }
+  .glitch::before, .glitch::after { content:attr(data-text); position:absolute; top:0; left:0; width:100%; height:100%; }
+  .glitch::before { color:#ff0055; animation:g1 3s infinite linear; clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%); opacity:0; }
+  .glitch::after { color:#00ffe7; animation:g2 3s infinite linear; clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%); opacity:0; }
+  @keyframes g1 { 0%,90%,100%{opacity:0;transform:none} 92%{opacity:0.6;transform:translateX(-2px)} 94%{opacity:0.6;transform:translateX(2px)} }
+  @keyframes g2 { 0%,90%,100%{opacity:0;transform:none} 93%{opacity:0.6;transform:translateX(2px)} 95%{opacity:0.6;transform:translateX(-2px)} }
+
+  /* SOBRE */
+  #sobre { background:linear-gradient(180deg, var(--bg) 0%, var(--purple-deep) 100%); }
+  .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; }
+  .about-text p { color:var(--text-dim); line-height:1.9; margin-bottom:1.2rem; font-size:0.95rem; }
+  .about-text p strong { color:var(--neon); }
+  .about-stats { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .stat-card { border:1px solid var(--neon-border); padding:1.5rem; background:var(--neon-faint); position:relative; overflow:hidden; transition:border-color 0.2s, box-shadow 0.2s; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--neon); }
+  .stat-card:hover { border-color:var(--neon); box-shadow:0 0 20px var(--neon-faint); }
+  .stat-num { font-family:var(--font-head); font-size:2rem; font-weight:700; color:var(--neon); line-height:1; margin-bottom:0.3rem; }
+  .stat-label { font-family:var(--font-mono); font-size:0.7rem; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase; }
+
+  /* DIÁRIO */
+  #construindo { background:var(--purple-deep); }
+  .bip-intro { display:flex; align-items:flex-start; gap:1.5rem; margin-bottom:3rem; padding:1.5rem; border:1px solid var(--neon-border); background:var(--neon-faint); }
+  .bip-icon { font-family:var(--font-mono); font-size:2rem; color:var(--neon); flex-shrink:0; }
+  .bip-text { color:var(--text-dim); line-height:1.7; font-size:0.95rem; }
+  .bip-text strong { color:var(--text); }
+  .log-terminal { background:var(--bg); border:1px solid var(--neon-border); overflow:hidden; }
+  .terminal-bar { display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1rem; background:var(--bg2); border-bottom:1px solid var(--neon-border); }
+  .terminal-dot { width:10px; height:10px; border-radius:50%; }
+  .terminal-bar span { font-family:var(--font-mono); font-size:0.7rem; color:var(--text-faint); margin-left:0.5rem; }
+  .log-entries { padding:1.5rem; }
+  .log-entry { display:grid; grid-template-columns:90px 1fr; gap:1rem; padding:0.8rem 0; border-bottom:1px solid #ffffff08; align-items:start; opacity:0; animation:logIn 0.5s ease forwards; }
+  .log-entry:last-child { border-bottom:none; }
+  @keyframes logIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+  .log-day { font-family:var(--font-mono); font-size:0.75rem; color:var(--neon); padding:0.2rem 0.5rem; border:1px solid var(--neon-border); background:var(--neon-faint); text-align:center; height:fit-content; }
+  .log-text { font-family:var(--font-mono); font-size:0.8rem; color:var(--text-dim); line-height:1.5; }
+  .log-text .tag { color:var(--neon); margin-right:0.5rem; }
+  .log-status { display:inline-block; font-size:0.65rem; padding:0.1rem 0.4rem; border-radius:2px; margin-left:0.5rem; vertical-align:middle; }
+  .status-done { background:#39ff1420; color:var(--neon); border:1px solid var(--neon-border); }
+  .status-prog { background:#a855f720; color:#a855f7; border:1px solid #a855f740; }
+
+  /* STACK */
+  #stack { background:linear-gradient(180deg, var(--purple-deep) 0%, var(--bg) 100%); }
+  .stack-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1rem; }
+  .stack-category { border:1px solid var(--neon-border); background:var(--neon-faint); padding:1.5rem; transition:border-color 0.2s, transform 0.2s, box-shadow 0.2s; position:relative; overflow:hidden; }
+  .stack-category::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--neon); transform:scaleX(0); transition:transform 0.3s; transform-origin:left; }
+  .stack-category:hover { border-color:var(--neon); transform:translateY(-3px); box-shadow:0 10px 30px rgba(57,255,20,0.1); }
+  .stack-category:hover::after { transform:scaleX(1); }
+  .cat-label { font-family:var(--font-mono); font-size:0.65rem; color:var(--neon); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
+  .cat-label::before { content:'▸'; }
+  .tech-items { display:flex; flex-wrap:wrap; gap:0.5rem; }
+  .tech-item { font-family:var(--font-mono); font-size:0.75rem; color:var(--text-dim); padding:0.3rem 0.6rem; border:1px solid var(--text-faint); background:rgba(255,255,255,0.02); transition:all 0.2s; }
+  .tech-item:hover { color:var(--neon); border-color:var(--neon); background:var(--neon-faint); }
+
+  /* PROJETOS */
+  #projetos { background:var(--bg); }
+  .projects-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:1.5rem; }
+  .project-card { border:1px solid var(--neon-border); background:var(--bg2); padding:2rem; position:relative; overflow:hidden; transition:border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+  .project-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, var(--neon), transparent); opacity:0; transition:opacity 0.3s; }
+  .project-card:hover { border-color:var(--neon); transform:translateY(-4px); box-shadow:0 12px 40px rgba(57,255,20,0.08); }
+  .project-card:hover::before { opacity:1; }
+  .proj-status { font-family:var(--font-mono); font-size:0.65rem; padding:0.2rem 0.6rem; border-radius:2px; margin-bottom:1rem; display:inline-block; letter-spacing:0.1em; }
+  .proj-status.planejando { background:#a855f720; color:#a855f7; border:1px solid #a855f740; }
+  .proj-status.aprendendo { background:#39ff1415; color:var(--neon); border:1px solid var(--neon-border); }
+  .proj-status.construindo { background:#f59e0b20; color:#f59e0b; border:1px solid #f59e0b40; }
+  .proj-nome { font-family:var(--font-head); font-size:1.3rem; font-weight:700; margin-bottom:0.5rem; }
+  .proj-objetivo { font-size:0.85rem; color:var(--text-dim); line-height:1.6; margin-bottom:1.2rem; }
+  .proj-tags { display:flex; flex-wrap:wrap; gap:0.4rem; }
+  .proj-tag { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-faint); padding:0.15rem 0.5rem; border:1px solid var(--text-faint); }
+
+  /* TRAJETÓRIA */
+  #trajetoria { background:linear-gradient(180deg, var(--bg) 0%, var(--purple-deep) 100%); }
+  .timeline { position:relative; padding-left:2rem; }
+  .timeline::before { content:''; position:absolute; left:0; top:0; bottom:0; width:1px; background:linear-gradient(to bottom, var(--neon), var(--purple-accent), transparent); }
+  .tl-item { position:relative; padding:0 0 2.5rem 2.5rem; opacity:0; transform:translateX(-20px); transition:opacity 0.5s, transform 0.5s; }
+  .tl-item.visible { opacity:1; transform:translateX(0); }
+  .tl-dot { position:absolute; left:-4px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--neon); box-shadow:0 0 10px var(--neon), 0 0 20px var(--neon-dim); }
+  .tl-item.futuro .tl-dot { background:var(--purple-accent); box-shadow:0 0 10px #6b21a8; }
+  .tl-periodo { font-family:var(--font-mono); font-size:0.7rem; color:var(--neon); letter-spacing:0.15em; margin-bottom:0.4rem; }
+  .tl-item.futuro .tl-periodo { color:var(--purple-accent); }
+  .tl-cargo { font-family:var(--font-head); font-size:1.15rem; font-weight:700; margin-bottom:0.3rem; }
+  .tl-desc { font-size:0.85rem; color:var(--text-dim); line-height:1.6; max-width:560px; }
+  .tl-badge { display:inline-block; font-family:var(--font-mono); font-size:0.65rem; padding:0.15rem 0.5rem; border:1px solid var(--neon-border); color:var(--neon); background:var(--neon-faint); margin-top:0.5rem; letter-spacing:0.1em; }
+  .tl-item.futuro .tl-badge { border-color:#6b21a840; color:#a855f7; background:#a855f710; }
+
+  /* CONTATO */
+  #contato { background:var(--purple-deep); }
+  .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; }
+  .contact-text p { color:var(--text-dim); line-height:1.8; font-size:0.95rem; margin-bottom:2rem; }
+  .social-links { display:flex; flex-direction:column; gap:0.75rem; }
+  .social-link { display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; border:1px solid var(--neon-border); background:var(--neon-faint); text-decoration:none; color:var(--text-dim); transition:all 0.2s; font-family:var(--font-mono); font-size:0.8rem; }
+  .social-link:hover { border-color:var(--neon); color:var(--neon); background:rgba(57,255,20,0.08); transform:translateX(4px); }
+  .social-icon { font-size:1.1rem; width:24px; text-align:center; }
+  .social-handle { flex:1; }
+  .social-arrow { opacity:0.4; transition:opacity 0.2s, transform 0.2s; }
+  .social-link:hover .social-arrow { opacity:1; transform:translateX(4px); }
+  .contact-form { display:flex; flex-direction:column; gap:1rem; }
+  .form-group { display:flex; flex-direction:column; gap:0.4rem; }
+  .form-label { font-family:var(--font-mono); font-size:0.7rem; color:var(--neon); letter-spacing:0.15em; text-transform:uppercase; }
+  .form-input, .form-textarea { background:var(--bg); border:1px solid var(--neon-border); color:var(--text); font-family:var(--font-mono); font-size:0.85rem; padding:0.8rem 1rem; outline:none; transition:border-color 0.2s, box-shadow 0.2s; resize:none; }
+  .form-input:focus, .form-textarea:focus { border-color:var(--neon); box-shadow:0 0 15px var(--neon-faint); }
+  .form-textarea { min-height:120px; }
+  .form-submit { align-self:flex-start; cursor:none; }
+
+  /* RODAPÉ */
+  footer { background:var(--bg); border-top:1px solid var(--neon-border); padding:2rem 3rem; display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
+  .footer-logo { font-family:var(--font-mono); font-size:0.85rem; color:var(--neon); text-decoration:none; }
+  .footer-text { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-faint); letter-spacing:0.1em; text-align:center; }
+  .footer-build { font-family:var(--font-mono); font-size:0.65rem; color:var(--text-faint); letter-spacing:0.1em; }
+  .footer-build span { color:var(--neon); }
+
+  /* PLAYER */
+  .music-player { position:fixed; bottom:2rem; right:2rem; z-index:2000; background:rgba(5,5,8,0.94); border:1px solid var(--neon-border); backdrop-filter:blur(12px); padding:1rem; display:flex; flex-direction:column; gap:0.75rem; min-width:220px; }
+  .player-header { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; }
+  .player-label { font-family:var(--font-mono); font-size:0.65rem; color:var(--neon); letter-spacing:0.15em; text-transform:uppercase; }
+  .player-toggle-btn { background:none; border:none; color:var(--text-faint); cursor:none; font-size:0.7rem; font-family:var(--font-mono); transition:color 0.2s; }
+  .player-toggle-btn:hover { color:var(--neon); }
+  .player-body { display:flex; flex-direction:column; gap:0.5rem; }
+  .player-track { font-family:var(--font-mono); font-size:0.7rem; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .player-track .dot { color:var(--neon); animation:blink 1.2s step-end infinite; display:inline-block; margin-right:0.4rem; }
+  .player-controls { display:flex; align-items:center; gap:0.75rem; }
+  .ctrl-btn { background:none; border:1px solid var(--neon-border); color:var(--text-dim); width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:none; transition:all 0.2s; font-size:0.7rem; font-family:var(--font-mono); flex-shrink:0; }
+  .ctrl-btn:hover, .ctrl-btn.active { border-color:var(--neon); color:var(--neon); background:var(--neon-faint); }
+  .volume-slider { flex:1; -webkit-appearance:none; height:2px; background:var(--text-faint); outline:none; cursor:none; }
+  .volume-slider::-webkit-slider-thumb { -webkit-appearance:none; width:10px; height:10px; border-radius:50%; background:var(--neon); box-shadow:0 0 6px var(--neon); }
+  .player-viz { display:flex; align-items:flex-end; gap:2px; height:16px; }
+  .viz-bar { width:3px; background:var(--neon); opacity:0.6; border-radius:1px; animation:vizB var(--dur,0.8s) ease-in-out infinite alternate; height:var(--h,4px); }
+  @keyframes vizB { from{height:2px;opacity:0.3} to{height:var(--h,12px);opacity:0.8} }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity:0; transform:translateY(20px); transition:opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  @media (max-width:768px) {
+    nav { padding:1rem 1.5rem; }
+    .nav-links { display:none; position:fixed; inset:0; background:var(--bg); flex-direction:column; align-items:center; justify-content:center; gap:2rem; z-index:999; }
+    .nav-links.aberto { display:flex; }
+    .nav-links a { font-size:1.2rem; }
+    .nav-toggle { display:flex; }
+    .about-grid, .contact-grid { grid-template-columns:1fr; gap:2rem; }
+    .about-stats { grid-template-columns:1fr 1fr; }
+    .section-wrap { padding:4rem 1.5rem; }
+    footer { flex-direction:column; gap:0.75rem; text-align:center; padding:1.5rem; }
+    .music-player { bottom:1rem; right:1rem; min-width:190px; }
+  }
+  @media (max-width:480px) {
+    .about-stats { grid-template-columns:1fr; }
+    .hero-btns { flex-direction:column; align-items:center; }
+    .btn { width:100%; text-align:center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-bg"></div>
+
+<!-- NAVEGAÇÃO -->
+<nav>
+  <a href="#hero" class="logo">&gt; moyses.helpdesk-es</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#sobre" onclick="fecharNav()">Sobre</a></li>
+    <li><a href="#construindo" onclick="fecharNav()">Diário</a></li>
+    <li><a href="#stack" onclick="fecharNav()">Stack</a></li>
+    <li><a href="#projetos" onclick="fecharNav()">Projetos</a></li>
+    <li><a href="#trajetoria" onclick="fecharNav()">Trajetória</a></li>
+    <li><a href="#contato" onclick="fecharNav()">Contato</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" onclick="alternarNav()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-tag">// CONSTRUINDO EM PÚBLICO · APRENDENDO EM PÚBLICO · CRESCENDO EM PÚBLICO</div>
+    <h1 class="hero-name glitch" data-text="MOYSES">MOY<span>SES</span></h1>
+    <div class="hero-alias">moyses.helpdesk-es &nbsp;·&nbsp; Espírito Santo, Brasil</div>
+    <div class="hero-titulo">Entusiasta de Suporte TI &nbsp;|&nbsp; Estudante de ADS &nbsp;|&nbsp; Dev Autodidata</div>
+    <div class="hero-missao">
+      <div><span class="prompt">$ </span>Documentando minha jornada na tecnologia</div>
+      <div><span class="prompt">$ </span>Desenvolvendo habilidades em programação, sistemas e suporte TI</div>
+      <div><span class="prompt">$ </span>Do estoque à tecnologia — um commit de cada vez</div>
+      <div><span class="prompt">$ </span><span id="typewriter"></span><span style="color:var(--neon);animation:blink 0.8s step-end infinite;display:inline-block">|</span></div>
+    </div>
+    <div class="hero-btns">
+      <a href="#projetos" class="btn btn-primary">Ver Projetos</a>
+      <a href="#construindo" class="btn btn-outline">Acompanhar Jornada</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>ROLAR</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SOBRE -->
+<section id="sobre">
+  <div class="section-wrap">
+    <div class="section-label">01 — Origem</div>
+    <h2 class="section-title reveal">Sobre <em>o Projeto</em></h2>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>Sou <strong>Moyses Ferreira</strong>, atualmente trabalhando como estoquista em uma franquia Melissa no Espírito Santo — e ao mesmo tempo estudando intensamente para entrar na área de tecnologia.</p>
+        <p>Minha trajetória não é a tradicional para TI. Tenho um <strong>diploma técnico em Gestão Administrativa</strong> pelo Colégio Arnulpho Mattos e já trabalhei como assistente administrativo interno em um condomínio. Caminhos diferentes, mesmo resultado: uma curiosidade profunda por como os sistemas funcionam.</p>
+        <p>Hoje estou matriculado em <strong>Análise e Desenvolvimento de Sistemas (ADS)</strong> e me aprofundando de forma autodidata usando o currículo de Ciência da Computação da UBL. Cada conceito aprendido, cada linha escrita, cada erro resolvido — tudo documentado aqui.</p>
+        <p>O objetivo de longo prazo é real: <strong>liberdade financeira e geográfica através da tecnologia.</strong> Este site é a prova de trabalho.</p>
+      </div>
+      <div class="about-stats reveal">
+        <div class="stat-card">
+          <div class="stat-num">Dia<br><span id="dayCount">001</span></div>
+          <div class="stat-label">Na Jornada</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">ADS</div>
+          <div class="stat-label">Curso Atual</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">UBL</div>
+          <div class="stat-label">Currículo CS</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">0→1</div>
+          <div class="stat-label">Construindo Tudo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- DIÁRIO -->
+<section id="construindo">
+  <div class="section-wrap">
+    <div class="section-label">02 — Diário de Aprendizado</div>
+    <h2 class="section-title reveal">Construindo <em>em Público</em></h2>
+    <div class="bip-intro reveal">
+      <div class="bip-icon">[/]</div>
+      <div class="bip-text">
+        <strong>Construir em Público</strong> é uma filosofia: compartilhar sua jornada de aprendizado de forma aberta, documentar falhas e conquistas, e crescer junto com uma comunidade. Este não é um portfólio finalizado — é um documento vivo de quem está se tornando desenvolvedor. Cada entrada abaixo representa progresso real.
+      </div>
+    </div>
+    <div class="log-terminal reveal">
+      <div class="terminal-bar">
+        <div class="terminal-dot" style="background:#ff5f57"></div>
+        <div class="terminal-dot" style="background:#febc2e"></div>
+        <div class="terminal-dot" style="background:#28c840"></div>
+        <span>~/moyses/diario-aprendizado.md</span>
+      </div>
+      <div class="log-entries" id="logEntries"></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- STACK -->
+<section id="stack">
+  <div class="section-wrap">
+    <div class="section-label">03 — Stack Atual</div>
+    <h2 class="section-title reveal">O que Estou <em>Aprendendo</em></h2>
+    <div class="stack-grid">
+      <div class="stack-category reveal">
+        <div class="cat-label">Programação</div>
+        <div class="tech-items">
+          <span class="tech-item">Python</span>
+          <span class="tech-item">JavaScript</span>
+          <span class="tech-item">Lógica de Programação</span>
+        </div>
+      </div>
+      <div class="stack-category reveal">
+        <div class="cat-label">Web</div>
+        <div class="tech-items">
+          <span class="tech-item">HTML5</span>
+          <span class="tech-item">CSS3</span>
+          <span class="tech-item">JavaScript DOM</span>
+        </div>
+      </div>
+      <div class="stack-category reveal">
+        <div class="cat-label">Ferramentas</div>
+        <div class="tech-items">
+          <span class="tech-item">Git</span>
+          <span class="tech-item">GitHub</span>
+          <span class="tech-item">Linux</span>
+          <span class="tech-item">VS Code</span>
+          <span class="tech-item">Terminal</span>
+        </div>
+      </div>
+      <div class="stack-category reveal">
+        <div class="cat-label">Fundamentos de CS</div>
+        <div class="tech-items">
+          <span class="tech-item">Algoritmos</span>
+          <span class="tech-item">Estrutura de Dados</span>
+          <span class="tech-item">Matemática Discreta</span>
+          <span class="tech-item">Arquitetura de Computadores</span>
+        </div>
+      </div>
+      <div class="stack-category reveal">
+        <div class="cat-label">Redes e SO</div>
+        <div class="tech-items">
+          <span class="tech-item">TCP/IP Básico</span>
+          <span class="tech-item">DNS / DHCP</span>
+          <span class="tech-item">Admin. Linux</span>
+          <span class="tech-item">Windows Server</span>
+        </div>
+      </div>
+      <div class="stack-category reveal">
+        <div class="cat-label">Suporte TI</div>
+        <div class="tech-items">
+          <span class="tech-item">Conceitos Helpdesk</span>
+          <span class="tech-item">Hardware</span>
+          <span class="tech-item">Troubleshooting</span>
+          <span class="tech-item">ITIL Básico</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJETOS -->
+<section id="projetos">
+  <div class="section-wrap">
+    <div class="section-label">04 — Projetos em Desenvolvimento</div>
+    <h2 class="section-title reveal">Futuras <em>Construções</em></h2>
+    <div class="projects-grid">
+      <div class="project-card reveal">
+        <div class="proj-status aprendendo">FASE DE APRENDIZADO</div>
+        <div class="proj-nome">Scripts de Automação</div>
+        <div class="proj-objetivo">Criar scripts Python para automatizar tarefas repetitivas de administração e helpdesk — organização de arquivos, análise de logs, ferramentas simples de monitoramento.</div>
+        <div class="proj-tags"><span class="proj-tag">Python</span><span class="proj-tag">Automação</span><span class="proj-tag">CLI</span></div>
+      </div>
+      <div class="project-card reveal">
+        <div class="proj-status planejando">PLANEJAMENTO</div>
+        <div class="proj-nome">Kit de Ferramentas Helpdesk</div>
+        <div class="proj-objetivo">Uma coleção de ferramentas simples para ambientes de suporte TI: rastreador de chamados, coletor de informações do sistema, scripts de diagnóstico rápido.</div>
+        <div class="proj-tags"><span class="proj-tag">Python</span><span class="proj-tag">Suporte TI</span><span class="proj-tag">Web</span></div>
+      </div>
+      <div class="project-card reveal">
+        <div class="proj-status planejando">PLANEJAMENTO</div>
+        <div class="proj-nome">Rastreador de Estudos CS</div>
+        <div class="proj-objetivo">Um painel pessoal para acompanhar o progresso no currículo UBL de CS, registrar horas de estudo e visualizar o crescimento ao longo do tempo.</div>
+        <div class="proj-tags"><span class="proj-tag">HTML/CSS/JS</span><span class="proj-tag">Visualização</span><span class="proj-tag">Construindo em Público</span></div>
+      </div>
+      <div class="project-card reveal">
+        <div class="proj-status construindo">CONSTRUINDO</div>
+        <div class="proj-nome">Este Portfólio</div>
+        <div class="proj-objetivo">Este próprio site — construído com HTML, CSS e JS puro. Um documento vivo que vai evoluindo conforme as habilidades crescem. Primeiro projeto frontend real.</div>
+        <div class="proj-tags"><span class="proj-tag">HTML5</span><span class="proj-tag">CSS3</span><span class="proj-tag">JavaScript</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TRAJETÓRIA -->
+<section id="trajetoria">
+  <div class="section-wrap">
+    <div class="section-label">05 — Jornada Profissional</div>
+    <h2 class="section-title reveal">A <em>Trajetória</em></h2>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-periodo">2020–2022</div>
+        <div class="tl-cargo">Técnico em Gestão Administrativa</div>
+        <div class="tl-desc">Formado pelo Colégio Arnulpho Mattos com diploma técnico em Gestão Administrativa. Primeiro ensino estruturado, desenvolvendo disciplina e raciocínio organizacional.</div>
+        <div class="tl-badge">CONCLUÍDO ✓</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-periodo">2022–2023</div>
+        <div class="tl-cargo">Assistente Administrativo Interno — Condomínio</div>
+        <div class="tl-desc">Primeira experiência profissional lidando com sistemas, processos e resolução de problemas do mundo real em ambiente de condomínio.</div>
+        <div class="tl-badge">CONCLUÍDO ✓</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-periodo">2024 — ATUAL</div>
+        <div class="tl-cargo">Estoquista — Franquia Melissa</div>
+        <div class="tl-desc">Emprego atual enquanto estudo tecnologia de forma intensiva. O trabalho financia a missão. Cada noite é dedicada ao aprendizado e à construção do futuro.</div>
+        <div class="tl-badge">EMPREGO ATUAL</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-periodo">2024 — ATUAL</div>
+        <div class="tl-cargo">Estudante de ADS + Ciência da Computação Autodidata</div>
+        <div class="tl-desc">Matriculado em Análise e Desenvolvimento de Sistemas (ADS) e estudando de forma independente usando o currículo UBL de CS. Construindo bases em programação, algoritmos, redes e suporte TI.</div>
+        <div class="tl-badge">EM ANDAMENTO →</div>
+      </div>
+      <div class="tl-item futuro">
+        <div class="tl-dot"></div>
+        <div class="tl-periodo">FUTURO PRÓXIMO</div>
+        <div class="tl-cargo">Primeira Vaga em TI / Helpdesk</div>
+        <div class="tl-desc">Conquistar uma posição júnior de suporte TI ou helpdesk. Aplicar o conhecimento em um ambiente profissional real de tecnologia. O primeiro passo dentro da porta.</div>
+        <div class="tl-badge">OBJETIVO →</div>
+      </div>
+      <div class="tl-item futuro">
+        <div class="tl-dot"></div>
+        <div class="tl-periodo">LONGO PRAZO</div>
+        <div class="tl-cargo">Liberdade Financeira via Tecnologia</div>
+        <div class="tl-desc">A estrela-guia: alcançar liberdade financeira e geográfica através do desenvolvimento de software e TI. Criar produtos. Trabalhar remotamente. Gerar valor de qualquer lugar do mundo.</div>
+        <div class="tl-badge">VISÃO ◈</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTATO -->
+<section id="contato">
+  <div class="section-wrap">
+    <div class="section-label">06 — Entre em Contato</div>
+    <h2 class="section-title reveal">Vamos <em>Conectar</em></h2>
+    <div class="contact-grid">
+      <div class="contact-text reveal">
+        <p>Estou sempre aberto a conectar com outros desenvolvedores, entusiastas de tecnologia e quem esteja navegando por um caminho não tradicional para a área. Acompanhe a jornada, compartilhe recursos, ou simplesmente diga oi.</p>
+        <div class="social-links">
+          <a href="https://github.com" target="_blank" class="social-link">
+            <span class="social-icon">⌨</span>
+            <span class="social-handle">github.com/moyses-helpdesk-es</span>
+            <span class="social-arrow">→</span>
+          </a>
+          <a href="https://linkedin.com" target="_blank" class="social-link">
+            <span class="social-icon">◈</span>
+            <span class="social-handle">linkedin.com/in/moyses-ferreira</span>
+            <span class="social-arrow">→</span>
+          </a>
+          <a href="https://instagram.com" target="_blank" class="social-link">
+            <span class="social-icon">◉</span>
+            <span class="social-handle">@moyses.helpdesk-es</span>
+            <span class="social-arrow">→</span>
+          </a>
+          <a href="mailto:moyses.helpdesk@gmail.com" class="social-link">
+            <span class="social-icon">✉</span>
+            <span class="social-handle">moyses.helpdesk@gmail.com</span>
+            <span class="social-arrow">→</span>
+          </a>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="contact-form">
+          <div class="form-group">
+            <label class="form-label">// Nome</label>
+            <input type="text" class="form-input" placeholder="seu_nome">
+          </div>
+          <div class="form-group">
+            <label class="form-label">// E-mail</label>
+            <input type="email" class="form-input" placeholder="seu@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">// Mensagem</label>
+            <textarea class="form-textarea" placeholder="Escreva sua mensagem aqui..."></textarea>
+          </div>
+          <button class="btn btn-primary form-submit" onclick="enviarFormulario(event)">Enviar Mensagem →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RODAPÉ -->
+<footer>
+  <a href="#hero" class="footer-logo">&gt; moyses.helpdesk-es_</a>
+  <div class="footer-text">© 2025 Moyses Ferreira · Construindo em Público · Espírito Santo, Brasil</div>
+  <div class="footer-build">status: <span>ativo</span> · v0.1.0</div>
+</footer>
+
+<!-- PLAYER DE MÚSICA -->
+<div class="music-player" id="musicPlayer">
+  <div class="player-header">
+    <span class="player-label">▸ ambiente.sys</span>
+    <button class="player-toggle-btn" onclick="alternarPlayer()">—</button>
+  </div>
+  <div class="player-body" id="playerBody">
+    <div class="player-track"><span class="dot">●</span><span id="trackName">synthwave_lofi_01.wav</span></div>
+    <div class="player-viz" id="playerViz"></div>
+    <div class="player-controls">
+      <button class="ctrl-btn" id="playBtn" onclick="alternarPlay()">▶</button>
+      <input type="range" class="volume-slider" id="volSlider" min="0" max="1" step="0.01" value="0.4" oninput="setVolume(this.value)">
+    </div>
+  </div>
+</div>
+
+<script>
+// CURSOR
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cursor.style.left=mx+'px'; cursor.style.top=my+'px'; });
+(function anel() { rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(anel); })();
+
+// NAV MOBILE
+function alternarNav() { document.getElementById('navLinks').classList.toggle('aberto'); }
+function fecharNav() { document.getElementById('navLinks').classList.remove('aberto'); }
+
+// MÁQUINA DE ESCREVER
+const frases = [
+  'objetivo: entrar na área de TI',
+  'status: aprendendo todos os dias',
+  'construindo: python + web + linux',
+  'mentalidade: 0_para_1_a_cada_commit'
+];
+let pi=0, ci=0, apagando=false;
+const tw = document.getElementById('typewriter');
+function digitar() {
+  const p = frases[pi];
+  if (!apagando) { tw.textContent = p.slice(0,++ci); if(ci>=p.length){apagando=true;setTimeout(digitar,1800);return;} }
+  else { tw.textContent = p.slice(0,--ci); if(ci===0){apagando=false;pi=(pi+1)%frases.length;} }
+  setTimeout(digitar, apagando?40:70);
+}
+setTimeout(digitar, 1500);
+
+// CONTADOR DE DIAS
+const inicio = new Date('2025-01-01');
+const dias = Math.floor((new Date()-inicio)/86400000);
+document.getElementById('dayCount').textContent = String(dias).padStart(3,'0');
+
+// ENTRADAS DO DIÁRIO
+const entradas = [
+  {dia:'DIA 001', tag:'INÍCIO', texto:'Comecei a documentar a jornada. Matriculei no ADS. Criei perfil no GitHub.', status:'feito'},
+  {dia:'DIA 007', tag:'CS', texto:'Estudei álgebra booleana e sistemas de numeração (binário, hexadecimal). Mente aberta.', status:'feito'},
+  {dia:'DIA 014', tag:'CÓDIGO', texto:'Primeiro script Python escrito. Hello world → evoluiu para uma calculadora simples.', status:'feito'},
+  {dia:'DIA 021', tag:'WEB', texto:'Comecei HTML e CSS. O box model finalmente faz sentido.', status:'feito'},
+  {dia:'DIA 030', tag:'GIT', texto:'Aprendi fluxo Git: init, add, commit, push. Primeiro commit real no GitHub.', status:'feito'},
+  {dia:'DIA 045', tag:'LINUX', texto:'Configurei dual boot com Ubuntu. Navegando no terminal sem pânico.', status:'feito'},
+  {dia:'DIA 060', tag:'REDES', texto:'Estudando TCP/IP, modelo OSI e DNS. Os fundamentos de redes começam a fazer sentido.', status:'progresso'},
+  {dia:'AGORA', tag:'BUILD', texto:'Construindo este portfólio como primeiro projeto frontend real. Marco histórico.', status:'progresso'},
+];
+const logContainer = document.getElementById('logEntries');
+entradas.forEach((e,i) => {
+  const el = document.createElement('div');
+  el.className = 'log-entry';
+  el.style.animationDelay = `${i*0.08}s`;
+  const sHtml = e.status==='feito'
+    ? '<span class="log-status status-done">CONCLUÍDO</span>'
+    : '<span class="log-status status-prog">EM ANDAMENTO</span>';
+  el.innerHTML = `<div class="log-day">${e.dia}</div><div class="log-text"><span class="tag">[${e.tag}]</span>${e.texto}${sHtml}</div>`;
+  logContainer.appendChild(el);
+});
+
+// SCROLL REVEAL
+const revelar = document.querySelectorAll('.reveal, .tl-item');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) setTimeout(()=>e.target.classList.add('visible'), e.target.dataset.delay||0); });
+}, {threshold:0.15});
+revelar.forEach((el,i) => { el.dataset.delay=(i%4)*80; obs.observe(el); });
+
+// PLAYER DE MÚSICA
+let recolhido=false, tocando=false, ctx, gainNode;
+
+function alternarPlayer() {
+  recolhido=!recolhido;
+  document.getElementById('playerBody').style.display=recolhido?'none':'flex';
+  document.querySelector('.player-toggle-btn').textContent=recolhido?'+':'—';
+}
+
+function alternarPlay() {
+  const btn=document.getElementById('playBtn');
+  if(!tocando){iniciarAmbiente();tocando=true;btn.textContent='■';btn.classList.add('active');animarViz();}
+  else{pararAmbiente();tocando=false;btn.textContent='▶';btn.classList.remove('active');animarViz();}
+}
+
+function iniciarAmbiente() {
+  ctx = new (window.AudioContext||window.webkitAudioContext)();
+  gainNode = ctx.createGain();
+  gainNode.gain.setValueAtTime(parseFloat(document.getElementById('volSlider').value)*0.3, ctx.currentTime);
+  gainNode.connect(ctx.destination);
+  [110,138.59,164.81,220,277.18].forEach((freq,i) => {
+    const osc=ctx.createOscillator(), g=ctx.createGain(), f=ctx.createBiquadFilter();
+    f.type='lowpass'; f.frequency.value=800;
+    osc.type=i%2===0?'sine':'triangle'; osc.frequency.value=freq;
+    g.gain.setValueAtTime(0.08/(i+1),ctx.currentTime);
+    osc.connect(f); f.connect(g); g.connect(gainNode); osc.start();
+    const lfo=ctx.createOscillator(), lg=ctx.createGain();
+    lfo.frequency.value=0.05+i*0.03; lg.gain.value=5;
+    lfo.connect(lg); lg.connect(osc.frequency); lfo.start();
+  });
+}
+
+function pararAmbiente() { if(ctx){ctx.close();ctx=null;} }
+function setVolume(v) { if(gainNode) gainNode.gain.setValueAtTime(parseFloat(v)*0.3,ctx.currentTime); }
+
+const vizEl = document.getElementById('playerViz');
+[6,10,14,8,12,16,6,10,14,8,12,6,10,8].forEach(h => {
+  const b=document.createElement('div'); b.className='viz-bar';
+  b.style.setProperty('--h',h+'px'); b.style.setProperty('--dur',(0.4+Math.random()*0.6)+'s');
+  b.style.animationPlayState='paused'; vizEl.appendChild(b);
+});
+
+function animarViz() {
+  vizEl.querySelectorAll('.viz-bar').forEach(b=>b.style.animationPlayState=tocando?'running':'paused');
+}
+
+function enviarFormulario(e) {
+  e.preventDefault();
+  const btn=e.target;
+  btn.textContent='Mensagem Enviada ✓';
+  btn.style.background='transparent'; btn.style.color='var(--neon)';
+  setTimeout(()=>{btn.textContent='Enviar Mensagem →';btn.style.background='';btn.style.color='';},3000);
+}
+
+const faixas=['synthwave_lofi_01.wav','ambiente_drone_02.wav','chuva_cyber_03.wav'];
+let fi=0;
+setInterval(()=>{ if(tocando){fi=(fi+1)%faixas.length;document.getElementById('trackName').textContent=faixas[fi];} },30000);
+</script>
+</body>
+</html>
